@@ -1,4 +1,4 @@
-#include "signal.h"
+#include <muslots.h>
 
 #include <iostream>
 #include <cassert>

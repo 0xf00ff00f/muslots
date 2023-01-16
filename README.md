@@ -1,8 +1,10 @@
+# muslots
+
 A minimal signal/slot library.
 
 There are many like it, but this one is mine. In a real project you probably want to use something like [sigslot](https://github.com/palacaze/sigslot) instead.
 
-## Example
+## Usage
 
     void foo(int a, int b) { }
     
@@ -11,18 +13,18 @@ There are many like it, but this one is mine. In a real project you probably wan
         Signal<int, int> signal;
     
         // connect function ptr
-        auto c1 = signal.connect(foo);
+        Connection c = signal.connect(foo);
     
         // connect lambda
-        auto c2 = signal.connect([](int a, double b) { });
+        signal.connect([](int a, double b) { });
     
         // notify slots
         signal(3, 5);
     
         // disconnect
-        c1.disconnect();
-        assert(!c1.connected());
+        c.disconnect();
+        assert(!c.connected());
     
-        // only foo should be called
+        // only the lambda should be called
         signal(4, 7);
     }
