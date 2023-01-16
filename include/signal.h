@@ -1,0 +1,105 @@
+#pragma once
+
+#include <algorithm>
+#include <concepts>
+#include <memory>
+#include <vector>
+
+class Disconnectable
+{
+public:
+    virtual ~Disconnectable() = default;
+
+    virtual void disconnect() = 0;
+};
+
+class Connection
+{
+public:
+    using DisconnectablePtr = std::weak_ptr<Disconnectable>;
+
+    explicit Connection(DisconnectablePtr ptr)
+        : m_ptr(ptr)
+    {
+    }
+
+    bool connected() const { return !m_ptr.expired(); }
+
+    void disconnect()
+    {
+        if (auto ptr = m_ptr.lock())
+            ptr->disconnect();
+    }
+
+private:
+    DisconnectablePtr m_ptr;
+};
+
+template<typename... Args>
+class Signal;
+
+template<typename... Args>
+class SlotBase : public Disconnectable
+{
+public:
+    using SignalT = Signal<Args...>;
+
+    explicit SlotBase(SignalT *signal)
+        : m_signal(signal)
+    {
+    }
+
+    void disconnect() override { m_signal->disconnect(this); }
+
+    virtual void invoke(Args &&...args) = 0;
+
+private:
+    SignalT *m_signal;
+};
+
+template<typename Handler, typename... Args>
+requires std::invocable<Handler, Args...>
+class Slot : public SlotBase<Args...>
+{
+public:
+    explicit Slot(Signal<Args...> *signal, const Handler &handler)
+        : SlotBase<Args...>(signal)
+        , m_handler(handler)
+    {
+    }
+
+    void invoke(Args &&...args) override { m_handler(std::forward<Args>(args)...); }
+
+private:
+    Handler m_handler;
+};
+
+template<typename... Args>
+class Signal
+{
+public:
+    template<typename Handler>
+    requires std::invocable<Handler, Args...> Connection connect(const Handler &handler)
+    {
+        using Slot = Slot<std::decay_t<Handler>, Args...>;
+        auto slot = std::make_shared<Slot>(this, handler);
+        Connection c(slot);
+        m_slots.push_back(std::move(slot));
+        return c;
+    }
+
+    void disconnect(Disconnectable *d)
+    {
+        m_slots.erase(std::remove_if(m_slots.begin(), m_slots.end(), [d](auto &slot) { return slot.get() == d; }),
+                      m_slots.end());
+    }
+
+    void operator()(Args &&...args)
+    {
+        for (auto &slot : m_slots)
+            slot->invoke(std::forward<Args>(args)...);
+    }
+
+private:
+    std::vector<std::shared_ptr<SlotBase<Args...>>> m_slots;
+};
