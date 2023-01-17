@@ -51,7 +51,7 @@ public:
 
     void disconnect() override { m_signal->disconnect(this); }
 
-    virtual void invoke(Args &&...args) = 0;
+    virtual void invoke(Args... args) = 0;
 
 private:
     SignalT *m_signal;
@@ -68,7 +68,7 @@ public:
     {
     }
 
-    void invoke(Args &&...args) override { m_handler(std::forward<Args>(args)...); }
+    void invoke(Args... args) override { m_handler(args...); }
 
 private:
     Handler m_handler;
@@ -93,10 +93,11 @@ public:
         std::erase_if(m_slots, [d](auto &slot) { return slot.get() == d; });
     }
 
-    void operator()(Args &&...args)
+    template<typename... Ts>
+    void operator()(Ts &&...args)
     {
         for (auto &slot : m_slots)
-            slot->invoke(std::forward<Args>(args)...);
+            slot->invoke(std::forward<Ts>(args)...);
     }
 
 private:
