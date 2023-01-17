@@ -90,8 +90,7 @@ public:
 
     void disconnect(Disconnectable *d)
     {
-        m_slots.erase(std::remove_if(m_slots.begin(), m_slots.end(), [d](auto &slot) { return slot.get() == d; }),
-                      m_slots.end());
+        std::erase_if(m_slots, [d](auto &slot) { return slot.get() == d; });
     }
 
     void operator()(Args &&...args)
