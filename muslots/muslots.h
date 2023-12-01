@@ -5,6 +5,9 @@
 #include <memory>
 #include <vector>
 
+namespace muslots
+{
+
 class Disconnectable
 {
 public:
@@ -58,7 +61,7 @@ private:
 };
 
 template<typename Handler, typename... Args>
-requires std::invocable<Handler, Args...>
+    requires std::invocable<Handler, Args...>
 class Slot : public SlotBase<Args...>
 {
 public:
@@ -79,7 +82,8 @@ class Signal
 {
 public:
     template<typename Handler>
-    requires std::invocable<Handler, Args...> Connection connect(const Handler &handler)
+        requires std::invocable<Handler, Args...>
+    Connection connect(const Handler &handler)
     {
         using Slot = Slot<std::decay_t<Handler>, Args...>;
         auto slot = std::make_shared<Slot>(this, handler);
@@ -103,3 +107,5 @@ public:
 private:
     std::vector<std::shared_ptr<SlotBase<Args...>>> m_slots;
 };
+
+} // namespace muslots

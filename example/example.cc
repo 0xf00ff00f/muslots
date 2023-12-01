@@ -1,7 +1,9 @@
-#include <muslots.h>
+#include <muslots/muslots.h>
 
 #include <iostream>
 #include <cassert>
+
+using namespace muslots;
 
 void foo(int a, int b)
 {

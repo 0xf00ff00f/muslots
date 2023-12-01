@@ -6,10 +6,14 @@ There are many like it, but this one is mine. In a real project you probably wan
 
 ## Usage
 
+    #include <muslots/muslots.h>
+
     void foo(int a, int b) { }
     
     int main()
     {
+        using namespace muslots;
+
         Signal<int, int> signal;
     
         // connect function ptr

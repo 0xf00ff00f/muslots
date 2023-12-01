@@ -1,14 +1,13 @@
-option(MUSLOTS_TEST "Generate tests" OFF)
-
 cmake_minimum_required(VERSION 3.12)
 
 project(muslots)
 
+option(MUSLOTS_TEST "Build example" OFF)
+
 set(CMAKE_CXX_STANDARD 20)
 
-add_library(muslots INTERFACE)
-target_include_directories(muslots INTERFACE ${PROJECT_SOURCE_DIR}/include)
+add_subdirectory(muslots)
 
-if (MUSLOTS_TEST)
-    add_subdirectory(test)
+if (MUSLOTS_EXAMPLE)
+    add_subdirectory(example)
 endif ()
