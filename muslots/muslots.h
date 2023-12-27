@@ -21,6 +21,8 @@ class Connection
 public:
     using DisconnectablePtr = std::weak_ptr<Disconnectable>;
 
+    Connection() = default;
+
     explicit Connection(DisconnectablePtr ptr)
         : m_ptr(ptr)
     {
