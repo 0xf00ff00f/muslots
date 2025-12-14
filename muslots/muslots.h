@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <concepts>
 #include <memory>
-#include <vector>
+#include <list>
 
 namespace muslots
 {
@@ -102,12 +102,17 @@ public:
     template<typename... Ts>
     void operator()(Ts &&...args)
     {
-        for (auto &slot : m_slots)
-            slot->invoke(std::forward<Ts>(args)...);
+        auto it = m_slots.begin();
+        while (it != m_slots.end())
+        {
+            auto next = std::next(it);
+            (*it)->invoke(std::forward<Ts>(args)...);
+            it = next;
+        }
     }
 
 private:
-    std::vector<std::shared_ptr<SlotBase<Args...>>> m_slots;
+    std::list<std::shared_ptr<SlotBase<Args...>>> m_slots;
 };
 
 } // namespace muslots
